@@ -8,10 +8,11 @@ from dotenv import load_dotenv
 from structures.AIS_Signal import AIS_Signal
 from structures.Ship import ShipHandler
 from utils.position_handler import is_near_border
+from anomaly_detection import check_if_missing
 
 load_dotenv()
 API_KEY = os.getenv("AIS_STREAM_API_KEY")
-BOX = [[36.50, 23.50], [38.00, 26.00]]
+BOX = [[1.00, 103.00], [1.50, 104.50]]
 
 async def listen_to_api(handler):
     if not API_KEY:
@@ -58,28 +59,16 @@ async def watchdog(handler):
     the transmitter.
     """
     while True:
-        await asyncio.sleep(30)
+        await asyncio.sleep(1)
         current_time = time.time()
 
         for mmsi, ship in list(handler._fleet.items()):
-            time_since_last_ping = current_time - ship.timestamp
-            avg_ping = getattr(ship, 'avg_ping_sec', 120)
-            if avg_ping is None:
-                continue
-            max_allowed_delay = max(avg_ping * 10, 180)
-
-            if time_since_last_ping > max_allowed_delay:
-
-                if is_near_border(ship.lat, ship.lon, BOX):
-                    print(f'The ship with mmsi {mmsi} exited the watch area normaly')
-                    del handler._fleet[mmsi]
-                else:
-                    print(f"PING ANOMALY DETECTED: Ship with mmsi: {mmsi} missing. Avg ping time: {avg_ping:.1f} and last ping was before {time_since_last_ping:.1f}sec")
-                    search_specific_ship(mmsi)
+            misssing = check_if_missing(handler, mmsi, ship, BOX, current_time)
     
 
-def search_specific_ship(mmsi):
-    """
+"""def search_specific_ship(mmsi):
+    
     Checks a global region to detect a ships position based on its mmsi
-    """
+    
     pass
+    """
