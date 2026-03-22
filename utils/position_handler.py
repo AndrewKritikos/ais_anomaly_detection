@@ -1,3 +1,18 @@
+import math
+
+def calculate_distance_nm(lat1, lon1, lat2, lon2):
+
+    R = 3440.065
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+    return R * c
+
 
 def is_near_border(ship, box, time_elapsed_sec):
     """
@@ -12,22 +27,19 @@ def is_near_border(ship, box, time_elapsed_sec):
     max_lat = box[1][0]
     max_lon = box[1][1]
 
-    dist_south = abs(ship.lat - min_lat)
-    dist_north = abs(ship.lat - max_lat)
-    dist_west = abs(ship.lat - min_lon)
-    dist_east = abs(ship.lat - max_lon)
+    dist_south_nm = calculate_distance_nm(ship.lat, ship.lon, min_lat, ship.lon)
+    dist_north_nm = calculate_distance_nm(ship.lat, ship.lon, max_lat, ship.lon)
+    dist_west_nm = calculate_distance_nm(ship.lat, ship.lon, ship.lat, min_lon)
+    dist_east_nm = calculate_distance_nm(ship.lat, ship.lon, ship.lat, max_lon)
 
-    dist_sorted_deg = sorted([dist_south, dist_north, dist_west, dist_east])
+    dist_min_nm = min(dist_south_nm, dist_north_nm, dist_west_nm, dist_east_nm)
 
-    nearest_dist_deg = dist_sorted_deg[0]
-
-    nearest_dist_nm = nearest_dist_deg * 60
     time_hours = time_elapsed_sec / 3600
     max_travel_dist_nm = ship.speed * time_hours
     safety_margin_nm = 1.0
 
-    if nearest_dist_nm <= (max_travel_dist_nm + safety_margin_nm):
+    if dist_min_nm <= (max_travel_dist_nm + safety_margin_nm):
         return True
     
-    print(f"Ship with mmsi: {ship.mmsi} was lost {nearest_dist_nm}nm away from nearest border with speed: {ship.speed}")
+    print(f"Ship with mmsi: {ship.mmsi} was lost {dist_min_nm}nm away from nearest border with speed: {ship.speed}")
     return False
