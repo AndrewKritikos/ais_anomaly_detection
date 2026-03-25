@@ -43,3 +43,16 @@ def is_near_border(ship, box, time_elapsed_sec):
     
     print(f"Ship with mmsi: {ship.mmsi} was lost {dist_min_nm}nm away from nearest border with speed: {ship.speed}")
     return False
+
+def is_inside_watch_area(ais_message, box):
+
+    lat = ais_message['lat']
+    lon = ais_message['lon']
+
+    min_lat, min_lon = box[0]
+    max_lat, max_lon = box[1]
+
+    is_lat_inside = min_lat <= lat <= max_lat
+    is_lon_inside = min_lon <= lon <= max_lon
+
+    return is_lat_inside and is_lon_inside

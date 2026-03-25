@@ -1,14 +1,10 @@
-import asyncio
 import websockets
 import json
 import time
 import os
 from dotenv import load_dotenv
 
-from structures.AIS_Signal import AIS_Signal
-from structures.Ship import ShipHandler
-from utils.position_handler import is_near_border
-from anomaly_detection import check_if_missing
+
 
 load_dotenv()
 API_KEY = os.getenv("AIS_STREAM_API_KEY")
@@ -25,7 +21,7 @@ async def listen_to_api(handler):
     async with websockets.connect(uri) as websocket:
         subscribe_message = {
             "APIKey": API_KEY,
-            "BoundingBoxes": [[[36.50, 23.50], [38.00, 26.00]]],
+            "BoundingBoxes": [BOX],
             "FilterMessageTypes": ["PositionReport", "StandardClassBPositionReport"]
         }
     
@@ -51,24 +47,32 @@ async def listen_to_api(handler):
 
 
                 
-async def watchdog(handler):
-    """
-    Checks for anomalies, currently checks if a ship ping is not close to its mean ping time 
-    If it is not, it investigates the position , if the ship is outside of our cover and exited normaly
-    Or if the signal is lost inside the cover area meaning that the ship has spoofed its signal or closed
-    the transmitter.
-    """
-    while True:
-        await asyncio.sleep(1)
-        current_time = time.time()
 
-        for mmsi, ship in list(handler._fleet.items()):
-            misssing = check_if_missing(handler, mmsi, ship, BOX, current_time)
     
+import asyncio
+import time
 
-"""def search_specific_ship(mmsi):
-    
-    Checks a global region to detect a ships position based on its mmsi
-    
-    pass
+async def search_specific_ship(mmsi):
     """
+    ΠΡΟΣΩΡΙΝΗ MOCK ΣΥΝΑΡΤΗΣΗ: Υποκρίνεται ότι ψάχνει στο παγκόσμιο API.
+    """
+    print(f"🌍 API SEARCH: Αναζήτηση του πλοίου {mmsi} παγκοσμίως...")
+    await asyncio.sleep(1) # Κάνουμε μια μικρή παύση για ρεαλισμό (προσομοίωση δικτύου)
+
+    # Αν ψάχνει το πλοίο 333333333 (Το Spoofing του test μας)
+    if mmsi == "333333333":
+        # Επιστρέφει ένα στίγμα εκτός του Bounding Box της Σιγκαπούρης!
+        return {
+            'mmsi': mmsi,
+            'lat': 40.0, 
+            'lon': 20.0,
+            'speed': 15.0,
+            'timestamp': time.time()
+        }
+    
+    # Αν ψάχνει το πλοίο 222222222 (Το Dark Vessel του test μας)
+    if mmsi == "222222222":
+        # Επιστρέφει None, που σημαίνει ότι όντως έχει κλείσει το AIS του παντού!
+        return None
+        
+    return None
