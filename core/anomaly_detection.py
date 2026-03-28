@@ -2,10 +2,10 @@ import time
 import asyncio
 
 from utils.position_handler import is_near_border, is_inside_watch_area
-from api_listener import search_specific_ship
-from structures.Ship import ShipStatus, ShipHandler
+from core.api_listener import search_specific_ship
+from models.Ship import ShipStatus
+from config.settings import BOX, GREEN_PING_MULTIPLIER, GREEN_WATCHDOG_SLEEP_SEC, YELLOW_WATCHDOG_SLEEP_SEC, YELLOW_GRACE_PERIOD_SEC
 
-BOX = [[1.00, 103.00], [1.50, 104.50]]
 
 
 def check_if_missing(handler, mmsi, ship, box, current_time):
@@ -29,7 +29,7 @@ def check_if_missing(handler, mmsi, ship, box, current_time):
         return False
     
     
-    #max_allowed_delay = min(avg_ping * 10, 1850) real delay
+    #max_allowed_delay = min(avg_ping * GREEN_PING_MULTIPLIER, 1850) real delay
     max_allowed_delay = 10 #testing delay time
     if time_since_last_ping > max_allowed_delay:
         if is_near_border(ship, box, time_since_last_ping):
@@ -54,7 +54,7 @@ async def watchdog(handler):
     the transmitter.
     """
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(GREEN_WATCHDOG_SLEEP_SEC)
         current_time = time.time()
 
         for mmsi, ship in list(handler.green_fleet.items()):
@@ -62,13 +62,12 @@ async def watchdog(handler):
 
 async def yellow_watchdog(handler):
     while True:
-        await asyncio.sleep(10)
+        await asyncio.sleep(YELLOW_WATCHDOG_SLEEP_SEC)
         current_time = time.time()
 
         for mmsi, ship in list(handler.yellow_fleet.items()):
             time_in_yellow = current_time - ship.time_entered_yellow
-            if time_in_yellow > 1: #testing value
-            #if time_in_yellow > 30: real value
+            if time_in_yellow > YELLOW_GRACE_PERIOD_SEC:
                 ship = handler.yellow_fleet.pop(mmsi)
                 handler.red_fleet[mmsi] = ship
                 print(f'Ship with mmsi: {mmsi} moved to red list due to signal loss, possible AIS shutdown')

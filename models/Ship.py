@@ -1,4 +1,4 @@
-from structures.AIS_Signal import AIS_Signal
+from models.AIS_Signal import AIS_Signal
 from enum import Enum
 import time
 from utils.position_handler import is_inside_watch_area

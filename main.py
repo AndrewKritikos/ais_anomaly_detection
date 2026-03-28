@@ -1,6 +1,6 @@
 import asyncio
-from api_listener import listen_to_api, watchdog
-from structures.Ship import ShipHandler
+from core.api_listener import listen_to_api, watchdog
+from models.Ship import ShipHandler
 
 
 async def main():

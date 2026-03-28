@@ -1,0 +1,31 @@
+{
+    "green_fleet": [
+        {
+            "mmsi": "111111111",
+            "lat": 1.25,
+            "lon": 103.75,
+            "speed": 12.0,
+            "status": "ShipStatus.MOVING",
+            "timestamp": 1774725496.014457
+        }
+    ],
+    "yellow_fleet": [],
+    "red_fleet": [
+        {
+            "mmsi": "222222222",
+            "lat": 1.35,
+            "lon": 103.85,
+            "speed": 14.0,
+            "status": "ShipStatus.MOVING",
+            "timestamp": 1774725365.7682457
+        },
+        {
+            "mmsi": "333333333",
+            "lat": 40.0,
+            "lon": 20.0,
+            "speed": 15.0,
+            "status": "ShipStatus.SPOOFING",
+            "timestamp": 1774725385.8025079
+        }
+    ]
+}

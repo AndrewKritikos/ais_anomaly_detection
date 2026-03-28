@@ -1,7 +1,7 @@
 import time
 import random
 import asyncio
-from structures.Ship import ShipHandler
+from models.Ship import ShipHandler
 
 async def run_fuzzer(handler, num_ships=3, duration_seconds=20):
     print("🧪 Ξεκινάει το Data Fuzzing (Προσομοίωση Ροής AIS)...")

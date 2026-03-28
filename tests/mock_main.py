@@ -1,7 +1,7 @@
 import asyncio
-from structures.Ship import ShipHandler
-from anomaly_detection import watchdog, yellow_watchdog
-from mock_spawner import mock_listen_to_api
+from models.Ship import ShipHandler
+from core.anomaly_detection import watchdog, yellow_watchdog
+from tests.mock_spawner import mock_listen_to_api
 
 async def main():
     test_handler = ShipHandler()
